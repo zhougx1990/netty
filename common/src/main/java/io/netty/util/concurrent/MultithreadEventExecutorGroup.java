@@ -73,7 +73,7 @@ public abstract class MultithreadEventExecutorGroup extends AbstractEventExecuto
         }
 
         if (executor == null) {
-            executor = new ThreadPerTaskExecutor(newDefaultThreadFactory());
+            executor = new ThreadPerTaskExecutor(newDefaultThreadFactory());//创建线程选择器
         }
 
         children = new EventExecutor[nThreads];
@@ -81,7 +81,7 @@ public abstract class MultithreadEventExecutorGroup extends AbstractEventExecuto
         for (int i = 0; i < nThreads; i ++) {
             boolean success = false;
             try {
-                children[i] = newChild(executor, args);
+                children[i] = newChild(executor, args);//new 一个NIOEventLoopGroup
                 success = true;
             } catch (Exception e) {
                 // TODO: Think about if this is a good exception type
@@ -108,7 +108,7 @@ public abstract class MultithreadEventExecutorGroup extends AbstractEventExecuto
             }
         }
 
-        chooser = chooserFactory.newChooser(children);
+        chooser = chooserFactory.newChooser(children);//创建线程选择器
 
         final FutureListener<Object> terminationListener = new FutureListener<Object>() {
             @Override

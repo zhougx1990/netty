@@ -161,7 +161,7 @@ public abstract class SingleThreadEventExecutor extends AbstractScheduledEventEx
         super(parent);
         this.addTaskWakesUp = addTaskWakesUp;
         this.maxPendingTasks = Math.max(16, maxPendingTasks);
-        this.executor = ObjectUtil.checkNotNull(executor, "executor");
+        this.executor = ObjectUtil.checkNotNull(executor, "executor");//保存线程执行器
         taskQueue = newTaskQueue(this.maxPendingTasks);
         rejectedExecutionHandler = ObjectUtil.checkNotNull(rejectedHandler, "rejectedHandler");
     }
@@ -390,7 +390,7 @@ public abstract class SingleThreadEventExecutor extends AbstractScheduledEventEx
      * the tasks in the task queue and returns if it ran longer than {@code timeoutNanos}.
      */
     protected boolean runAllTasks(long timeoutNanos) {
-        fetchFromScheduledTaskQueue();
+        fetchFromScheduledTaskQueue();//聚合定时任务到普通队列
         Runnable task = pollTask();
         if (task == null) {
             afterRunningAllTasks();
@@ -401,13 +401,13 @@ public abstract class SingleThreadEventExecutor extends AbstractScheduledEventEx
         long runTasks = 0;
         long lastExecutionTime;
         for (;;) {
-            safeExecute(task);
+            safeExecute(task);//执行任务
 
             runTasks ++;
 
             // Check timeout every 64 tasks because nanoTime() is relatively expensive.
             // XXX: Hard-coded value - will make it configurable if it is really a problem.
-            if ((runTasks & 0x3F) == 0) {
+            if ((runTasks & 0x3F) == 0) {//计算当前时间是否已经超时
                 lastExecutionTime = ScheduledFutureTask.nanoTime();
                 if (lastExecutionTime >= deadline) {
                     break;
@@ -422,7 +422,7 @@ public abstract class SingleThreadEventExecutor extends AbstractScheduledEventEx
         }
 
         afterRunningAllTasks();
-        this.lastExecutionTime = lastExecutionTime;
+        this.lastExecutionTime = lastExecutionTime;//记录最后执行时间
         return true;
     }
 
@@ -761,7 +761,7 @@ public abstract class SingleThreadEventExecutor extends AbstractScheduledEventEx
             throw new NullPointerException("task");
         }
 
-        boolean inEventLoop = inEventLoop();
+        boolean inEventLoop = inEventLoop();//当前线程是否是NIOEventLoop的线程
         addTask(task);
         if (!inEventLoop) {
             startThread();

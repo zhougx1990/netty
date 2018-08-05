@@ -469,7 +469,7 @@ public abstract class AbstractChannel extends DefaultAttributeMap implements Cha
                         new IllegalStateException("incompatible event loop type: " + eventLoop.getClass().getName()));
                 return;
             }
-
+            //绑定NIO线程
             AbstractChannel.this.eventLoop = eventLoop;
 
             if (eventLoop.inEventLoop()) {
@@ -507,10 +507,10 @@ public abstract class AbstractChannel extends DefaultAttributeMap implements Cha
 
                 // Ensure we call handlerAdded(...) before we actually notify the promise. This is needed as the
                 // user may already fire events through the pipeline in the ChannelFutureListener.
-                pipeline.invokeHandlerAddedIfNeeded();
+                pipeline.invokeHandlerAddedIfNeeded();//触发事件到用户代码：io.netty.channel.ChannelHandlerAdapter.handlerAdded
 
                 safeSetSuccess(promise);
-                pipeline.fireChannelRegistered();
+                pipeline.fireChannelRegistered();//触发事件到用代码：io.netty.channel.ChannelInboundHandlerAdapter.channelRegistered
                 // Only fire a channelActive if the channel has never been registered. This prevents firing
                 // multiple channel actives if the channel is deregistered and re-registered.
                 if (isActive()) {

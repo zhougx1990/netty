@@ -146,7 +146,7 @@ public final class NioEventLoop extends SingleThreadEventLoop {
             throw new NullPointerException("selectStrategy");
         }
         provider = selectorProvider;
-        final SelectorTuple selectorTuple = openSelector();
+        final SelectorTuple selectorTuple = openSelector();//创建选择器
         selector = selectorTuple.selector;
         unwrappedSelector = selectorTuple.unwrappedSelector;
         selectStrategy = strategy;
@@ -407,7 +407,7 @@ public final class NioEventLoop extends SingleThreadEventLoop {
                     case SelectStrategy.CONTINUE:
                         continue;
                     case SelectStrategy.SELECT:
-                        select(wakenUp.getAndSet(false));
+                        select(wakenUp.getAndSet(false));//标示select操作是未唤醒状态
 
                         // 'wakenUp.compareAndSet(false, true)' is always evaluated
                         // before calling 'selector.wakeup()' to reduce the wake-up
